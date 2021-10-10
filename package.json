@@ -1,6 +1,6 @@
 {
-  "name": "@seleku/compiler",
-  "version": "1.0.1",
+  "name": "@selekudev/compiler",
+  "version": "1.0.2",
   "description": "\"seleku compiler system\"",
   "main": "index.js",
   "scripts": {

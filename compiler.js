@@ -313,34 +313,34 @@ class SelekuCompiler{
 
 }
 
-// module.exports = {SelekuCompiler};
+module.exports = {SelekuCompiler};
 
-let compiler = new SelekuCompiler();
+// let compiler = new SelekuCompiler();
 
-let a = compiler.compile(`
+// let a = compiler.compile(`
 
-	#import {card} from "card.js"
+// 	#import {card} from "card.js"
 
-	<style>
+// 	<style>
 
-		h1{
-			color: white;
-		}
+// 		h1{
+// 			color: white;
+// 		}
 
-	</style>
+// 	</style>
 
-	<h1 id="app" class="v-d-flex v-text-center">
+// 	<h1 id="app" class="v-d-flex v-text-center">
 		
 
-	</h1>
+// 	</h1>
 
-	<script>
+// 	<script>
 
-		console.log("hello world");
+// 		console.log("hello world");
 
-	</script>
+// 	</script>
 
-`);
+// `);
 
 
-console.log(a.JS)
+// console.log(a.JS)
