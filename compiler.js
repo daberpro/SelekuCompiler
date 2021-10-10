@@ -111,7 +111,7 @@ function createTemplate(child,first = false){
 
 	}
 
-	if(!(attribute.hasOwnProperty("props"))) attribute["props"] = "";
+	if(!(attribute.hasOwnProperty("props"))) attribute["props"] = null;
 
 	if(child.nodeName !== "#text" && attribute.hasOwnProperty("loop")){
 		template = `
@@ -120,7 +120,7 @@ function createTemplate(child,first = false){
 			inner: "${child?.childNodes?.filter(e => e.nodeName === "#text" && e.value.length > 0).map( e => e.value.replace(/(\n|\t)/igm,"")).join("")}",
 			props: {${(()=>{
 
-				return attribute["props"].split(" ").map(e => `${e}: null`).join(",\n");
+				return (attribute["props"] !== null)? attribute["props"].split(" ").map(e => `${e}: null`).join(",\n") : "";
 
 			})()}},
 			attribute: ${toString((()=>{
@@ -152,7 +152,7 @@ function createTemplate(child,first = false){
 			inner: "${child?.childNodes?.filter(e => e.nodeName === "#text" && e.value.length > 0).map( e => e.value.replace(/(\n|\t)/igm,"")).join("")}",
 			props: {${(()=>{
 
-				return attribute["props"].split(" ").map(e => `${e}: null`).join(",\n"); 
+				return (attribute["props"] !== null)? attribute["props"].split(" ").map(e => `${e}: null`).join(",\n") : ""; 
 
 			})()}},
 			attribute: ${toString((()=>{
@@ -182,7 +182,7 @@ function createTemplate(child,first = false){
 			inner: "${child?.childNodes?.filter(e => e.nodeName === "#text" && e.value.length > 0).map( e => e.value.replace(/(\n|\t)/igm,"")).join("")}",
 			props: {${(()=>{
 
-				return attribute["props"].split(" ").map(e => `${e}: null`).join(",\n"); 
+				return (attribute["props"] !== null)? attribute["props"].split(" ").map(e => `${e}: null`).join(",\n") : ""; 
 
 			})()}},
 			attribute: ${toString((()=>{
@@ -210,7 +210,7 @@ function createTemplate(child,first = false){
 			inner: "${child?.childNodes?.filter(e => e.nodeName === "#text" && e.value.length > 0).map( e => e.value.replace(/(\n|\t)/igm,"")).join("")}",
 			props: {${(()=>{
 
-				return attribute["props"].split(" ").map(e => `${e}: null`).join(",\n");
+				return (attribute["props"] !== null)? attribute["props"].split(" ").map(e => `${e}: null`).join(",\n") : "";
 
 			})()}},
 			attribute: ${toString((()=>{
@@ -250,11 +250,36 @@ class SelekuCompiler{
 	compile(sourceCode){
 
 		const fragment = parseFragment(sourceCode);
+		let stringStatement = "";
+
+		const allStatement = {
+			"#import"(args){
+
+				stringStatement += args.join(" ").replace(/\#/igm,"");
+
+			}
+		};
+
+		for(let x of fragment.childNodes){
+
+			if(x.nodeName === "#text"){
+
+				let statement = x.value.replace(/(\n|\t)/igm,"").split(" ").filter(e => e.length > 0);
+
+				if(statement[0] in allStatement){
+
+					allStatement[statement[0]](statement);
+
+				}
+
+			}
+
+		}
 
 		let firstTemplate = null;
 		let CSS = "";
 		let JS = `import { Component } from "seleku/core"
-
+		${stringStatement}
 		const @seleku_name = new Component();`;
 
 		for(let x of fragment.childNodes){
@@ -281,52 +306,41 @@ class SelekuCompiler{
 		JS = JS.replaceAll("@seleku_name",this.config.filename);
 
 		return {
-			JS,
+			JS: beautify(JS, { indent_size: 2, space_in_empty_paren: true }),
 			CSS
 		};
 	}
 
 }
 
-module.exports = {SelekuCompiler};
+// module.exports = {SelekuCompiler};
 
-// let compiler = new SelekuCompiler();
+let compiler = new SelekuCompiler();
 
-// let a = compiler.compile(`
+let a = compiler.compile(`
 
-// 	<style>
+	#import {card} from "card.js"
 
-// 		h1{
-// 			color: white;
-// 		}
+	<style>
 
-// 	</style>
+		h1{
+			color: white;
+		}
 
-// 	<h1 id="app" class="v-d-flex v-text-center" props="nama umur">
+	</style>
+
+	<h1 id="app" class="v-d-flex v-text-center">
 		
-// 		hello world {{nama}} {{umur}}
 
-// 		<ul loop="x of list" props="list">
+	</h1>
 
-// 			<li props="x y" condition="y">
-				
-// 				{{x}}
+	<script>
 
-// 				<span> dan {{y}}</span>
+		console.log("hello world");
 
-// 			</li>
+	</script>
 
-// 		</ul>
-
-// 	</h1>
-
-// 	<script>
-
-// 		console.log("hello world");
-
-// 	</script>
-
-// `);
+`);
 
 
-// console.log(beautify(a.JS, { indent_size: 2, space_in_empty_paren: true }))
+console.log(a.JS)
